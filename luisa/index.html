@@ -164,15 +164,14 @@
     .wrap { padding: 0 16px; }
     .grid { grid-template-columns: 1fr; gap: 14px; }
     .fact .k { flex-basis: 52px; }
-    .toprow { gap: 6px; }
-    .brand-left .name { font-size: 10px; letter-spacing: 0.16em; }
-    .brand-center .title { font-size: 15px; }
-    .brand-right .owner { font-size: 11px; }
-    .brand-left .dot { width: 6px; height: 6px; }
-  }
-  @media (max-width: 380px){
-    .brand-left .name { display: none; }
-    .brand-left .dot { display: none; }
+    /* header en dos renglones: metadatos arriba (extremos), título centrado abajo */
+    .toprow { grid-template-columns: 1fr 1fr; grid-template-areas: "left right" "center center"; row-gap: 10px; }
+    .brand-left { grid-area: left; }
+    .brand-right { grid-area: right; }
+    .brand-center { grid-area: center; justify-self: center; }
+    .brand-center .title { font-size: 21px; }
+    .brand-left .name { font-size: 10px; letter-spacing: 0.18em; }
+    .brand-right .owner { font-size: 12px; }
   }
 </style>
 </head>
@@ -194,7 +193,7 @@
 
     <div class="searchbox">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="q" type="text" placeholder="Escribí una escena…" autocomplete="off" autofocus>
+      <input id="q" type="text" placeholder="Escribí lo que buscás…" autocomplete="off" autofocus>
     </div>
     <div class="stat" id="stat">— planos</div>
 
@@ -207,12 +206,6 @@
         <button class="ex" data-q="atardecer">atardecer</button>
         <button class="ex" data-q="packshot">packshot</button>
         <button class="ex" data-q="bajo el agua">bajo el agua</button>
-      </div>
-      <div class="cluster" id="films">
-        <span class="lbl">Productora</span>
-        <button class="film on" data-v="">Todas</button>
-        <button class="film" data-v="MJZ">MJZ</button>
-        <button class="film disabled" data-v="__none" title="Disponible al indexar más productoras">Otras</button>
       </div>
     </div>
   </div>
@@ -234,8 +227,6 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
 <script>
   const P = BIBLIOTECA.planos;
   const C = BIBLIOTECA.comerciales;
-  let filtroProductora = null; // por ahora solo MJZ
-
   const codeMap = { "Coca-Cola":"CC", "GE":"GE", "Jim Beam":"JB", "Lyft":"LY", "Ocean Spray":"OS", "Xfinity":"XF" };
   const marcaDe = v => (C.find(c=>c.video===v)||{}).marca || v;
   const urlDe   = v => (C.find(c=>c.video===v)||{}).mjz_url || "https://mjz.com/directors/dante-ariola/work/";
@@ -245,16 +236,6 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   P.forEach(p => { idxPorVideo[p.video] = idxPorVideo[p.video] || 0; p._n = ++idxPorVideo[p.video]; });
 
   document.getElementById('stat').innerHTML = '<b>' + BIBLIOTECA.cantidad_planos_total + '</b> planos · <b>' + BIBLIOTECA.cantidad_comerciales + '</b> comerciales';
-
-  // filtro productora
-  const films = document.getElementById('films');
-  films.querySelectorAll('.film').forEach(el => el.addEventListener('click', () => {
-    if(el.classList.contains('disabled')) return;
-    films.querySelectorAll('.film').forEach(x=>x.classList.remove('on'));
-    el.classList.add('on');
-    filtroProductora = el.dataset.v || null;
-    render();
-  }));
 
   const campos = ["locacion","iluminacion","paleta","tipo_de_plano","movimiento_de_camara",
                   "personajes","emocion","elementos_clave","estetica","transicion_de_entrada"];
@@ -279,10 +260,6 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
     const grid = document.getElementById('grid');
 
     let items = P.slice();
-    if(filtroProductora){
-      const videosDeProd = C.filter(c=>c.productora===filtroProductora).map(c=>c.video);
-      items = items.filter(p => videosDeProd.includes(p.video));
-    }
 
     if(terms.length){
       let scored = [];
