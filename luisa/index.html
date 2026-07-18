@@ -292,7 +292,7 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
       const vid = vimeoDe(p.video);
       const code = (codeMap[marca]||'??') + '·' + String(p._n).padStart(2,'0');
       const codeFile = (codeMap[marca]||'XX') + '-' + String(p._n).padStart(2,'0');
-      const thumbUrl = `thumbs/${codeFile}.jpg`;
+      const thumbUrl = `/luisa/thumbs/${codeFile}.jpg`;
       const facts = visibles.filter(([k])=>p[k]).map(([k,lbl]) =>
         `<div class="fact"><span class="k">${lbl}</span><span class="v">${marcar(String(p[k]), rawTerms)}</span></div>`).join('');
       const emo = p.emocion ? `<span class="emo">${marcar(p.emocion.split(',')[0].trim(), rawTerms)}</span>` : '';
