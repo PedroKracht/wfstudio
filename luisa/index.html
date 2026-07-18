@@ -108,9 +108,9 @@
   .card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px -12px rgba(26,79,118,0.28); border-color: var(--wf-2); }
 
   .thumb { position: relative; aspect-ratio: 16/9; background: var(--wf-wash); overflow: hidden; }
-  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb img { position: relative; z-index: 1; width: 100%; height: 100%; object-fit: cover; display: block; }
   .thumb .fallback {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    position: absolute; inset: 0; z-index: 0; display: flex; align-items: center; justify-content: center;
     font-family: 'Fraunces', serif; font-size: 22px; color: var(--wf-2); letter-spacing: 0.04em;
   }
   .thumb .ts {
@@ -298,8 +298,8 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
       const emo = p.emocion ? `<span class="emo">${marcar(p.emocion.split(',')[0].trim(), rawTerms)}</span>` : '';
       return `<a class="card" href="${url}" target="_blank" rel="noopener">
         <div class="thumb">
-          <div class="fallback">${marca}</div>
-          ${thumbUrl ? `<img src="${thumbUrl}" alt="${marca}" loading="lazy" onerror="this.style.display='none'">` : ''}
+          <span class="fallback">${marca}</span>
+          <img src="${thumbUrl}" alt="${marca}" loading="lazy" onerror="this.style.display='none'">
           <span class="ts">${p.timestamp_inicio}</span>
           <span class="play"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg></span>
         </div>
