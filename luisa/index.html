@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>WF Studio · Buscador de referencias</title>
+<title>WF Studio · Reference Search</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;1,9..144,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -78,13 +78,14 @@
   .cluster { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
   .cluster .lbl { font-size: 10.5px; letter-spacing: 0.13em; text-transform: uppercase; color: var(--ink-faint); margin-right: 2px; }
 
-  .ex {
+  .qsel {
     background: var(--card); border: 1px solid var(--line);
     color: var(--ink-soft); font-family: inherit; font-size: 12.5px;
     padding: 5px 12px; border-radius: 20px; cursor: pointer;
-    transition: all 0.14s;
+    transition: all 0.14s; max-width: 168px;
   }
-  .ex:hover { border-color: var(--wf-2); color: var(--wf); background: var(--wf-wash); }
+  .qsel:hover { border-color: var(--wf-2); color: var(--wf); }
+  .qsel:focus { outline: none; border-color: var(--wf-2); box-shadow: 0 0 0 3px var(--wf-wash); }
 
   .film {
     font-size: 12.5px; padding: 5px 12px; border: 1px solid var(--line);
@@ -200,9 +201,20 @@
 
   /* todos los tags */
   .alltags { display: flex; flex-direction: column; gap: 4px; }
-  .alltags .row { display: flex; gap: 8px; font-size: 12px; line-height: 1.4; }
+  .alltags .row { display: flex; gap: 8px; font-size: 12px; line-height: 1.4; align-items: flex-start; }
   .alltags .row .tk { color: var(--ink-faint); flex: 0 0 84px; text-transform: uppercase; font-size: 9.5px; letter-spacing: 0.06em; padding-top: 2px; }
   .alltags .row .tv { color: var(--ink); flex: 1; }
+  .tagedit {
+    flex: 0 0 auto; background: transparent; border: none; padding: 2px;
+    cursor: pointer; color: var(--ink-faint); display: flex; align-items: center;
+    opacity: 0.5; transition: opacity 0.14s, color 0.14s;
+  }
+  .tagedit:hover { opacity: 1; color: var(--wf); }
+  .tagedit svg { width: 12px; height: 12px; stroke: currentColor; fill: none; stroke-width: 2; }
+  .tagedit-input {
+    flex: 1; background: var(--bg); border: 1px solid var(--wf-2); border-radius: 6px;
+    padding: 3px 7px; font-family: inherit; font-size: 12px; color: var(--ink); outline: none;
+  }
 
   /* nota */
   .note-area textarea {
@@ -214,14 +226,6 @@
   .note-area textarea:focus { border-color: var(--wf-2); }
   .note-area textarea::placeholder { color: var(--ink-faint); }
 
-  /* corrección de tag */
-  .fix-area { display: flex; flex-direction: column; gap: 6px; }
-  .fix-row { display: flex; gap: 6px; align-items: center; }
-  .fix-row select, .fix-row input {
-    flex: 1; background: var(--bg); border: 1px solid var(--line); border-radius: 7px;
-    padding: 6px 8px; font-family: inherit; font-size: 12px; color: var(--ink); outline: none;
-  }
-  .fix-row select:focus, .fix-row input:focus { border-color: var(--wf-2); }
   .fixed-badge { font-size: 10px; color: var(--emo); margin-left: 4px; }
 
   /* botón export en header */
@@ -275,7 +279,7 @@
         <span class="name">WF Studio</span>
       </span>
       <span class="brand-center">
-        <span class="title">Buscador de <em>referencias</em></span>
+        <span class="title">Reference <em>search</em></span>
       </span>
       <span class="brand-right">
         <span class="owner">Luisa Kracht</span>
@@ -284,23 +288,17 @@
 
     <div class="searchbox">
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-      <input id="q" type="text" placeholder="Escribí lo que buscás…" autocomplete="off" autofocus>
+      <input id="q" type="text" placeholder="Type what you're looking for…" autocomplete="off" autofocus>
     </div>
-    <div class="stat" id="stat">— planos</div>
+    <div class="stat" id="stat">— shots</div>
 
     <div class="controls">
-      <div class="cluster" id="examples">
-        <span class="lbl">Probá</span>
-        <button class="ex" data-q="contraluz">contraluz</button>
-        <button class="ex" data-q="travelling">travelling</button>
-        <button class="ex" data-q="cámara en mano">cámara en mano</button>
-        <button class="ex" data-q="atardecer">atardecer</button>
-        <button class="ex" data-q="packshot">packshot</button>
-        <button class="ex" data-q="bajo el agua">bajo el agua</button>
+      <div class="cluster" id="quickfilters">
+        <span class="lbl">Filter</span>
       </div>
       <div class="cluster" style="gap:8px; margin-left:auto;">
-        <button class="favtoggle" id="favtoggle"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9C1 9 2.5 5 6 5c2 0 3.3 1.2 4 2.3C10.7 6.2 12 5 14 5c3.5 0 5 4 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg><span id="favcount">Favoritos</span></button>
-        <button class="export-btn" id="exportbtn">Exportar mis notas</button>
+        <button class="favtoggle" id="favtoggle"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9C1 9 2.5 5 6 5c2 0 3.3 1.2 4 2.3C10.7 6.2 12 5 14 5c3.5 0 5 4 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg><span id="favcount">Favorites</span></button>
+        <button class="export-btn" id="exportbtn">Export my notes</button>
       </div>
     </div>
   </div>
@@ -312,7 +310,7 @@
 
 <footer>
   <div class="wrap">
-    <div class="f"><b>Prueba de concepto WF Studio.</b> 6 comerciales de Dante Ariola (MJZ) indexados con IA de video. Cada tarjeta abre el comercial en el sitio de la productora.</div>
+    <div class="f"><b>WF Studio proof of concept.</b> 6 commercials by Dante Ariola (MJZ) indexed with video AI. Each card opens the commercial on the production company's site.</div>
   </div>
 </footer>
 
@@ -370,17 +368,17 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   }
   function updateFavCount(){
     const n = Object.keys(store.likes).length;
-    document.getElementById('favcount').textContent = n ? ('Favoritos ('+n+')') : 'Favoritos';
+    document.getElementById('favcount').textContent = n ? ('Favorites ('+n+')') : 'Favorites';
   }
 
-  document.getElementById('stat').innerHTML = '<b>' + BIBLIOTECA.cantidad_planos_total + '</b> planos \u00b7 <b>' + BIBLIOTECA.cantidad_comerciales + '</b> comerciales';
+  document.getElementById('stat').innerHTML = '<b>' + BIBLIOTECA.cantidad_planos_total + '</b> shots \u00b7 <b>' + BIBLIOTECA.cantidad_comerciales + '</b> commercials';
 
   const campos = ["locacion","iluminacion","paleta","tipo_de_plano","movimiento_de_camara",
                   "personajes","emocion","elementos_clave","estetica","transicion_de_entrada"];
-  const labels = {locacion:"Lugar", iluminacion:"Luz", paleta:"Paleta", tipo_de_plano:"Plano",
-                  movimiento_de_camara:"C\u00e1mara", personajes:"Personajes", emocion:"Emoci\u00f3n",
-                  elementos_clave:"Elementos", estetica:"Est\u00e9tica", transicion_de_entrada:"Transici\u00f3n"};
-  const visibles = [["locacion","Lugar"],["iluminacion","Luz"],["tipo_de_plano","Plano"],["movimiento_de_camara","C\u00e1mara"]];
+  const labels = {locacion:"Location", iluminacion:"Light", paleta:"Palette", tipo_de_plano:"Shot",
+                  movimiento_de_camara:"Camera", personajes:"Characters", emocion:"Emotion",
+                  elementos_clave:"Elements", estetica:"Style", transicion_de_entrada:"Transition"};
+  const visibles = [["locacion","Location"],["iluminacion","Light"],["tipo_de_plano","Shot"],["movimiento_de_camara","Camera"]];
 
   function valOf(p, campo){
     const fx = getFix(p._id);
@@ -390,6 +388,46 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
 
   const norm = s => (s||'').toString().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   const textoPlano = p => campos.map(c=>valOf(p,c)).join(' ');
+
+  /* dropdowns de filtro r\u00e1pido, generados desde los datos reales (no hardcodeados) */
+  function topValues(campo, limit){
+    const freq = new Map();
+    P.forEach(p => {
+      const raw = valOf(p, campo);
+      if(!raw) return;
+      raw.split(',').forEach(tok => {
+        const t = tok.replace(/\([^)]*\)/g,'').trim();
+        if(!t) return;
+        const key = norm(t);
+        if(!freq.has(key)) freq.set(key, {label: t, count: 0});
+        freq.get(key).count++;
+      });
+    });
+    return [...freq.values()].sort((a,b)=> b.count-a.count).slice(0, limit);
+  }
+
+  function buildQuickFilters(){
+    const box = document.getElementById('quickfilters');
+    const fields = [["locacion","Location"],["iluminacion","Lighting"],["tipo_de_plano","Shot type"],
+                    ["movimiento_de_camara","Camera"],["emocion","Emotion"]];
+    fields.forEach(([campo, ph]) => {
+      const opts = topValues(campo, 14);
+      if(!opts.length) return;
+      const sel = document.createElement('select');
+      sel.className = 'qsel';
+      sel.dataset.field = campo;
+      sel.innerHTML = '<option value="">'+ph+'\u2026</option>' +
+        opts.map(o => '<option value="'+o.label.replace(/"/g,'&quot;')+'">'+o.label+'</option>').join('');
+      sel.addEventListener('change', () => {
+        if(!sel.value) return;
+        document.getElementById('q').value = sel.value;
+        render();
+        document.getElementById('q').focus();
+        sel.value = '';
+      });
+      box.appendChild(sel);
+    });
+  }
 
   function marcar(txt, terms){
     if(!terms.length) return txt;
@@ -433,8 +471,8 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
 
     if(items.length===0){
       const msg = soloFavoritos
-        ? '<div class="empty"><div class="big">Todav\u00eda no marcaste favoritos.</div><div class="small">Toc\u00e1 el coraz\u00f3n en los planos que te gusten y aparecen ac\u00e1.</div></div>'
-        : '<div class="empty"><div class="big">No hay planos que coincidan con \u201c'+raw+'\u201d.</div><div class="small">Prob\u00e1 con otra palabra: una luz, una emoci\u00f3n, un tipo de plano. La b\u00fasqueda cubre solo estos '+BIBLIOTECA.cantidad_comerciales+' comerciales.</div></div>';
+        ? '<div class="empty"><div class="big">You haven\u2019t marked any favorites yet.</div><div class="small">Tap the heart on shots you like and they\u2019ll show up here.</div></div>'
+        : '<div class="empty"><div class="big">No shots match \u201c'+raw+'\u201d.</div><div class="small">Try another word: a light, an emotion, a shot type. The search only covers these '+BIBLIOTECA.cantidad_comerciales+' commercials.</div></div>';
       grid.innerHTML = msg;
       return;
     }
@@ -452,24 +490,22 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
         '<div class="fact"><span class="k">'+lbl+'</span><span class="v">'+marcar(String(valOf(p,k)), rawTerms)+'</span></div>').join('');
       const emoVal = valOf(p,'emocion');
       const emo = emoVal ? '<span class="emo">'+marcar(emoVal.split(',')[0].trim(), rawTerms)+'</span>' : '';
-      const linkTxt = (marca === 'Ocean Spray') ? 'Ver comercial' : 'Ver en MJZ';
+      const linkTxt = (marca === 'Ocean Spray') ? 'Watch commercial' : 'View on MJZ';
 
       const tagsHtml = campos.filter(c=>valOf(p,c)).map(c => {
         const fx = getFix(p._id);
-        const corregido = fx && fx.campo === c ? ' <span class="fixed-badge">\u270e corregido</span>' : '';
-        return '<div class="row"><span class="tk">'+labels[c]+'</span><span class="tv">'+valOf(p,c)+corregido+'</span></div>';
+        const corregido = fx && fx.campo === c ? ' <span class="fixed-badge">\u270e edited</span>' : '';
+        return '<div class="row" data-field="'+c+'"><span class="tk">'+labels[c]+'</span><span class="tv">'+valOf(p,c)+corregido+'</span><button class="tagedit" data-editfield="'+c+'" title="Correct this tag"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg></button></div>';
       }).join('');
-
-      const opts = campos.map(c=>'<option value="'+c+'">'+labels[c]+'</option>').join('');
 
       return '<div class="card" data-id="'+p._id+'">'
         + '<div class="thumb">'
-        + '<button class="like '+(liked?'on':'')+'" data-act="like" title="Me gusta como referencia">'
+        + '<button class="like '+(liked?'on':'')+'" data-act="like" title="Like as reference">'
         + '<svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9C1 9 2.5 5 6 5c2 0 3.3 1.2 4 2.3C10.7 6.2 12 5 14 5c3.5 0 5 4 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg>'
         + '</button>'
         + '<div class="relbtns">'
-        + '<button class="relbtn up '+(rv&&rv.v==='up'?'on':'')+'" data-act="relup" title="Relevante a la búsqueda"><svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>'
-        + '<button class="relbtn down '+(rv&&rv.v==='down'?'on':'')+'" data-act="reldown" title="No relevante a la búsqueda"><svg viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></button>'
+        + '<button class="relbtn up '+(rv&&rv.v==='up'?'on':'')+'" data-act="relup" title="Relevant to the search"><svg viewBox="0 0 24 24"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3zM7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg></button>'
+        + '<button class="relbtn down '+(rv&&rv.v==='down'?'on':'')+'" data-act="reldown" title="Not relevant to the search"><svg viewBox="0 0 24 24"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3zm7-13h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg></button>'
         + '</div>'
         + '<span class="fallback">'+marca+'</span>'
         + '<img src="'+thumbUrl+'" alt="'+marca+'" loading="lazy" onerror="this.style.display=\'none\'">'
@@ -482,34 +518,62 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
         + '<div class="facts">'+facts+'</div>'
         + '<a class="golink" href="'+url+'" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><path d="M7 17 17 7M9 7h8v8"/></svg>'+linkTxt+' \u00b7 '+p.timestamp_inicio+'</a>'
         + '<div class="actions">'
-        + '<button class="act '+(hasNote?'active':'')+'" data-act="note"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg> Nota</button>'
-        + '<button class="act" data-act="tags"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg> Ver tags</button>'
-        + '<button class="act '+(hasFix?'active':'')+'" data-act="fix"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg> Corregir</button>'
+        + '<button class="act '+(hasNote?'active':'')+'" data-act="note"><svg viewBox="0 0 24 24"><path d="M4 4h16v12H8l-4 4z"/></svg> Note</button>'
+        + '<button class="act '+(hasFix?'active':'')+'" data-act="tags"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><path d="M4 9h16"/></svg> View tags</button>'
         + '</div>'
-        + '<div class="panel" data-panel="tags"><div><div class="sub">Todos los tags</div><div class="alltags">'+tagsHtml+'</div></div></div>'
-        + '<div class="panel" data-panel="note"><div class="note-area"><div class="sub">Tu nota sobre esta referencia</div><textarea placeholder="\u00bfPor qu\u00e9 te sirve? \u00bfQu\u00e9 te gusta de este plano? (se guarda en tu navegador)">'+getNote(p._id)+'</textarea></div></div>'
-        + '<div class="panel" data-panel="fix"><div class="fix-area"><div class="sub">Corregir un tag mal puesto</div><div class="fix-row"><select data-fix="campo">'+opts+'</select></div><div class="fix-row"><input type="text" data-fix="valor" placeholder="Valor correcto\u2026"></div></div></div>'
+        + '<div class="panel" data-panel="tags"><div><div class="sub">All tags</div><div class="alltags">'+tagsHtml+'</div></div></div>'
+        + '<div class="panel" data-panel="note"><div class="note-area"><div class="sub">Your note on this reference</div><textarea placeholder="Why does it work for you? What do you like about this shot? (saved in your browser)">'+getNote(p._id)+'</textarea></div></div>'
         + '</div>'
         + '</div>';
     }).join('');
-
-    grid.querySelectorAll('.card').forEach(card => {
-      const id = card.dataset.id;
-      const fx = getFix(id);
-      if(fx){
-        const sel = card.querySelector('[data-fix="campo"]');
-        const inp = card.querySelector('[data-fix="valor"]');
-        if(sel) sel.value = fx.campo;
-        if(inp) inp.value = fx.valor;
-      }
-    });
   }
 
   const grid = document.getElementById('grid');
 
+  function commitTagEdit(card, id, campo, row, input){
+    const val = input.value;
+    setFix(id, campo, val);
+    const p = P.find(x=>x._id===id);
+    const fx = getFix(id);
+    const badge = fx && fx.campo === campo ? ' <span class="fixed-badge">✎ edited</span>' : '';
+    const span = document.createElement('span');
+    span.className = 'tv';
+    span.innerHTML = valOf(p, campo) + badge;
+    input.replaceWith(span);
+    const editBtn = row.querySelector('[data-editfield]');
+    if(editBtn) editBtn.style.display = '';
+    const tagsBtn = card.querySelector('[data-act="tags"]');
+    if(tagsBtn) tagsBtn.classList.toggle('active', !!getFix(id));
+  }
+
   grid.addEventListener('click', e => {
     const card = e.target.closest('.card'); if(!card) return;
     const id = card.dataset.id;
+
+    const editBtn = e.target.closest('[data-editfield]');
+    if(editBtn){
+      const campo = editBtn.dataset.editfield;
+      const row = editBtn.closest('.row');
+      if(row.querySelector('.tagedit-input')) return;
+      const p = P.find(x=>x._id===id); if(!p) return;
+      const tv = row.querySelector('.tv');
+      const current = valOf(p, campo);
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.className = 'tagedit-input';
+      input.value = current;
+      tv.replaceWith(input);
+      editBtn.style.display = 'none';
+      input.focus();
+      input.select();
+      input.addEventListener('keydown', ev => {
+        if(ev.key === 'Enter'){ input.blur(); }
+        if(ev.key === 'Escape'){ input.value = current; input.blur(); }
+      });
+      input.addEventListener('blur', () => commitTagEdit(card, id, campo, row, input));
+      return;
+    }
+
     const actBtn = e.target.closest('[data-act]'); if(!actBtn) return;
     const act = actBtn.dataset.act;
     if(act === 'like'){
@@ -546,27 +610,9 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
         if(btn) btn.classList.toggle('active', !!getNote(id));
       }, 400);
     }
-    if(e.target.matches('[data-fix="valor"]')){
-      const campo = card.querySelector('[data-fix="campo"]').value;
-      setFix(id, campo, e.target.value);
-      const btn = card.querySelector('[data-act="fix"]');
-      if(btn) btn.classList.toggle('active', !!getFix(id));
-    }
-  });
-  grid.addEventListener('change', e => {
-    const card = e.target.closest('.card'); if(!card) return;
-    const id = card.dataset.id;
-    if(e.target.matches('[data-fix="campo"]')){
-      const valor = card.querySelector('[data-fix="valor"]').value;
-      if(valor.trim()) setFix(id, e.target.value, valor);
-    }
   });
 
   document.getElementById('q').addEventListener('input', render);
-  document.querySelectorAll('.ex').forEach(b => b.addEventListener('click', () => {
-    document.getElementById('q').value = b.dataset.q; render();
-    document.getElementById('q').focus();
-  }));
 
   document.getElementById('favtoggle').addEventListener('click', () => {
     soloFavoritos = !soloFavoritos;
@@ -578,21 +624,21 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
     const likes = Object.keys(store.likes);
     const notes = store.notes;
     const fixes = store.fixes;
-    let out = "ARCHIVO DE REFERENCIAS \u2014 Luisa Kracht\n";
-    out += "Exportado: " + new Date().toLocaleString('es-AR') + "\n";
+    let out = "REFERENCE FILE \u2014 Luisa Kracht\n";
+    out += "Exported: " + new Date().toLocaleString('en-US') + "\n";
     out += "=".repeat(50) + "\n\n";
-    out += "PLANOS QUE ME GUSTAN (" + likes.length + ")\n" + "-".repeat(30) + "\n";
-    if(!likes.length) out += "(ninguno todav\u00eda)\n";
+    out += "SHOTS I LIKE (" + likes.length + ")\n" + "-".repeat(30) + "\n";
+    if(!likes.length) out += "(none yet)\n";
     likes.forEach(id => {
       const p = P.find(x=>x._id===id); if(!p) return;
       out += "\n\u2022 " + id + " \u2014 " + marcaDe(p.video) + " \u00b7 " + tituloDe(p.video) + " (" + p.timestamp_inicio + ")\n";
-      out += "  Plano: " + valOf(p,'tipo_de_plano') + " | C\u00e1mara: " + valOf(p,'movimiento_de_camara') + " | Luz: " + valOf(p,'iluminacion') + "\n";
-      out += "  Emoci\u00f3n: " + valOf(p,'emocion') + "\n";
-      if(getNote(id)) out += "  \u270e Mi nota: " + getNote(id) + "\n";
+      out += "  Shot: " + valOf(p,'tipo_de_plano') + " | Camera: " + valOf(p,'movimiento_de_camara') + " | Light: " + valOf(p,'iluminacion') + "\n";
+      out += "  Emotion: " + valOf(p,'emocion') + "\n";
+      if(getNote(id)) out += "  \u270e My note: " + getNote(id) + "\n";
     });
     const notasSueltas = Object.keys(notes).filter(id => !store.likes[id]);
     if(notasSueltas.length){
-      out += "\n\nOTRAS NOTAS (" + notasSueltas.length + ")\n" + "-".repeat(30) + "\n";
+      out += "\n\nOTHER NOTES (" + notasSueltas.length + ")\n" + "-".repeat(30) + "\n";
       notasSueltas.forEach(id => {
         const p = P.find(x=>x._id===id); if(!p) return;
         out += "\n\u2022 " + id + " \u2014 " + marcaDe(p.video) + " (" + p.timestamp_inicio + ")\n  " + notes[id] + "\n";
@@ -600,27 +646,28 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
     }
     const fixIds = Object.keys(fixes);
     if(fixIds.length){
-      out += "\n\nCORRECCIONES DE TAGS (" + fixIds.length + ") \u2014 mantenimiento del sistema\n" + "-".repeat(30) + "\n";
+      out += "\n\nTAG CORRECTIONS (" + fixIds.length + ") \u2014 system maintenance\n" + "-".repeat(30) + "\n";
       fixIds.forEach(id => { out += "\u2022 " + id + ": " + labels[fixes[id].campo] + " \u2192 \"" + fixes[id].valor + "\"\n"; });
     }
     const relevIds = Object.keys(store.relev);
     if(relevIds.length){
-      out += "\n\nRELEVANCIA DE B\u00daSQUEDA (" + relevIds.length + ")\n" + "-".repeat(30) + "\n";
+      out += "\n\nSEARCH RELEVANCE (" + relevIds.length + ")\n" + "-".repeat(30) + "\n";
       relevIds.forEach(id => {
         const p = P.find(x=>x._id===id); if(!p) return;
         const r = store.relev[id];
-        const marker = r.v === 'up' ? "\u2713 relevante" : "\u2717 no relevante";
-        out += "\u2022 " + id + " \u2014 " + marcaDe(p.video) + " (" + p.timestamp_inicio + "): " + marker + " [buscando: \"" + r.q + "\"]\n";
+        const marker = r.v === 'up' ? "\u2713 relevant" : "\u2717 not relevant";
+        out += "\u2022 " + id + " \u2014 " + marcaDe(p.video) + " (" + p.timestamp_inicio + "): " + marker + " [searching: \"" + r.q + "\"]\n";
       });
     }
     const blob = new Blob([out], {type:'text/plain;charset=utf-8'});
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = 'referencias-luisa.txt';
+    a.download = 'luisa-references.txt';
     a.click();
     URL.revokeObjectURL(a.href);
   });
 
+  buildQuickFilters();
   updateFavCount();
   render();
 </script>
