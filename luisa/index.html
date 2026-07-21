@@ -180,6 +180,21 @@
   .act svg { width: 13px; height: 13px; stroke: currentColor; fill: none; stroke-width: 2; }
   .act .dotmark { width: 6px; height: 6px; border-radius: 50%; background: var(--emo); display: inline-block; }
 
+  /* ---------- relevancia (pulgares sobre el thumb, al lado del like) ---------- */
+  .relev { position: absolute; right: 10px; top: 10px; z-index: 3; display: flex; gap: 5px; }
+  .rbtn {
+    width: 30px; height: 30px; border-radius: 50%; border: none;
+    background: rgba(255,255,255,0.86); backdrop-filter: blur(4px);
+    display: flex; align-items: center; justify-content: center; cursor: pointer;
+    transition: transform 0.14s, background 0.14s; padding: 0;
+  }
+  .rbtn:hover { transform: scale(1.12); background: #fff; }
+  .rbtn svg { width: 15px; height: 15px; fill: none; stroke: var(--ink-soft); stroke-width: 2; }
+  .rbtn.up.on { background: var(--wf); }
+  .rbtn.up.on svg { stroke: #fff; fill: #fff; }
+  .rbtn.down.on { background: var(--emo); }
+  .rbtn.down.on svg { stroke: #fff; fill: #fff; }
+  
   /* ---------- panel expandible (tags + nota + corrección) ---------- */
   .panel { display: none; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-soft); flex-direction: column; gap: 12px; }
   .panel.open { display: flex; }
@@ -324,7 +339,13 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   /* almacenamiento local */
   const STORE_KEY = 'wf_luisa_v1';
   function loadStore(){
-    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {likes:{}, notes:{}, fixes:{}}; }
+    function loadStore(){
+    try { return JSON.parse(localStorage.getItem(STORE_KEY)) || {likes:{}, notes:{}, fixes:{}, relev:{}}; }
+    catch(e){ return {likes:{}, notes:{}, fixes:{}, relev:{}}; }
+  }
+  function saveStore(s){ try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch(e){} }
+  let store = loadStore();
+  if(!store.likes) store.likes={}; if(!store.notes) store.notes={}; if(!store.fixes) store.fixes={}; if(!store.relev) store.relev={};
     catch(e){ return {likes:{}, notes:{}, fixes:{}}; }
   }
   function saveStore(s){ try { localStorage.setItem(STORE_KEY, JSON.stringify(s)); } catch(e){} }
@@ -345,6 +366,16 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   }
   function setFix(id, campo, valor){
     if(valor && valor.trim()) store.fixes[id] = {campo, valor: valor.trim()}; else delete store.fixes[id];
+    saveStore(store);
+  }
+  const getRelev = id => store.relev[id] || null;
+  function setRelev(id, valor){
+    const q = document.getElementById('q').value.trim();
+    if(store.relev[id] && store.relev[id].v === valor){
+      delete store.relev[id];           // segundo click en el mismo => desmarca
+    } else {
+      store.relev[id] = {v: valor, q: q, t: Date.now()};
+    }
     saveStore(store);
   }
   function updateFavCount(){
@@ -424,6 +455,7 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
       const code = (codeMap[marca]||'??') + '\u00b7' + String(p._n).padStart(2,'0');
       const thumbUrl = '/luisa/thumbs/' + p._id + '.jpg';
       const liked = isLiked(p._id);
+      const rel = getRelev(p._id);
       const hasNote = !!getNote(p._id);
       const hasFix = !!getFix(p._id);
       const facts = visibles.filter(([k])=>valOf(p,k)).map(([k,lbl]) =>
@@ -447,6 +479,10 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
         + '</button>'
         + '<span class="fallback">'+marca+'</span>'
         + '<img src="'+thumbUrl+'" alt="'+marca+'" loading="lazy" onerror="this.style.display=\'none\'">'
+        + '<div class="relev">'
+        + '<button class="rbtn up '+(rel&&rel.v==='up'?'on':'')+'" data-act="rel-up" title="Relevante a mi b\u00fasqueda"><svg viewBox="0 0 24 24"><path d="M7 10v11M2 13v6a2 2 0 0 0 2 2h13.5a2 2 0 0 0 2-1.7l1.3-8A2 2 0 0 0 19.8 9H14V4a2 2 0 0 0-2-2l-4 8H7"/></svg></button>'
+        + '<button class="rbtn down '+(rel&&rel.v==='down'?'on':'')+'" data-act="rel-down" title="No relevante a mi b\u00fasqueda"><svg viewBox="0 0 24 24"><path d="M17 14V3M22 11V5a2 2 0 0 0-2-2H6.5a2 2 0 0 0-2 1.7l-1.3 8A2 2 0 0 0 5.2 15H11v5a2 2 0 0 0 2 2l4-8h1"/></svg></button>'
+        + '</div>'
         + '<span class="ts">'+p.timestamp_inicio+'</span>'
         + '</div>'
         + '<div class="cbody">'
@@ -490,6 +526,13 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
       toggleLike(id);
       actBtn.classList.toggle('on', isLiked(id));
       if(soloFavoritos && !isLiked(id)) render();
+      return;
+    }
+    if(act === 'rel-up' || act === 'rel-down'){
+      setRelev(id, act === 'rel-up' ? 'up' : 'down');
+      const rel = getRelev(id);
+      card.querySelector('.rbtn.up').classList.toggle('on', rel && rel.v==='up');
+      card.querySelector('.rbtn.down').classList.toggle('on', rel && rel.v==='down');
       return;
     }
     const panel = card.querySelector('[data-panel="'+act+'"]'); if(!panel) return;
@@ -561,6 +604,16 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
       notasSueltas.forEach(id => {
         const p = P.find(x=>x._id===id); if(!p) return;
         out += "\n\u2022 " + id + " \u2014 " + marcaDe(p.video) + " (" + p.timestamp_inicio + ")\n  " + notes[id] + "\n";
+      });
+    }
+    const relIds = Object.keys(store.relev);
+    if(relIds.length){
+      out += "\n\nRELEVANCIA POR B\u00daSQUEDA (" + relIds.length + ") \u2014 feedback para afinar el sistema\n" + "-".repeat(30) + "\n";
+      relIds.forEach(id => {
+        const p = P.find(x=>x._id===id); if(!p) return;
+        const r = store.relev[id];
+        const signo = r.v === 'up' ? '\u2713 relevante' : '\u2717 no relevante';
+        out += "\u2022 " + id + " \u2014 " + marcaDe(p.video) + " (" + p.timestamp_inicio + "): " + signo + (r.q ? "  [buscando: \""+r.q+"\"]" : "") + "\n";
       });
     }
     const fixIds = Object.keys(fixes);
