@@ -478,10 +478,12 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   }
 
   let soloFavoritos = false;
+  let started = false;
 
   function render(){
     const raw = document.getElementById('q').value.trim();
-    const landing = !raw && !soloFavoritos;
+    if(raw || soloFavoritos) started = true;
+    const landing = !started;
     document.body.classList.toggle('landing', landing);
     if(landing){ document.getElementById('grid').innerHTML = ''; return; }
     const terms = norm(raw).split(/\s+/).filter(Boolean);
