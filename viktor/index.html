@@ -267,9 +267,30 @@
     .brand-left .name { font-size: 10px; letter-spacing: 0.18em; }
     .brand-right .owner { font-size: 12px; }
   }
+
+  /* ---------- landing (estilo Google): solo VIKTOR + buscador centrados ---------- */
+  body.landing header { position: static; background: transparent; backdrop-filter: none; border-bottom: none; }
+  body.landing .head-inner { min-height: 82vh; display: flex; flex-direction: column; justify-content: center; padding: 24px 0; }
+  body.landing .brand-left,
+  body.landing .stat,
+  body.landing .controls,
+  body.landing main,
+  body.landing footer { display: none; }
+  body.landing .toprow { display: block; text-align: center; margin-bottom: 30px; }
+  body.landing .brand-center .title { font-size: 62px; letter-spacing: 0.1em; }
+  body.landing .searchbox { max-width: 600px; width: 100%; margin: 0 auto; }
+  body.landing #q {
+    font-size: 18px; padding: 15px 20px 15px 50px; border-radius: 28px;
+    box-shadow: 0 4px 16px -8px rgba(26,43,51,0.25);
+  }
+  body.landing .searchbox svg { left: 20px; width: 19px; height: 19px; }
+  @media (max-width: 560px){
+    body.landing .brand-center .title { font-size: 42px; }
+    body.landing .head-inner { min-height: 74vh; }
+  }
 </style>
 </head>
-<body>
+<body class="landing">
 <header>
   <div class="wrap head-inner">
     <div class="toprow">
@@ -279,9 +300,6 @@
       </span>
       <span class="brand-center">
         <span class="title">VIKTOR</span>
-      </span>
-      <span class="brand-right">
-        <span class="owner">Luisa Kracht</span>
       </span>
     </div>
 
@@ -441,6 +459,9 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
 
   function render(){
     const raw = document.getElementById('q').value.trim();
+    const landing = !raw && !soloFavoritos;
+    document.body.classList.toggle('landing', landing);
+    if(landing){ document.getElementById('grid').innerHTML = ''; return; }
     const terms = norm(raw).split(/\s+/).filter(Boolean);
     const rawTerms = raw.split(/\s+/).filter(Boolean);
     const grid = document.getElementById('grid');
