@@ -1,0 +1,6 @@
+{
+  "redirects": [
+    { "source": "/luisa", "destination": "/viktor", "permanent": true },
+    { "source": "/luisa/:path*", "destination": "/viktor/:path*", "permanent": true }
+  ]
+}
