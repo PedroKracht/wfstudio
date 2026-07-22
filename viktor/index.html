@@ -284,6 +284,22 @@
     box-shadow: 0 4px 16px -8px rgba(26,43,51,0.25);
   }
   body.landing .searchbox svg { left: 20px; width: 19px; height: 19px; }
+  /* botón de favoritos y crédito, solo en landing */
+  .landing-actions { display: none; }
+  body.landing .landing-actions { display: flex; justify-content: center; margin-top: 22px; }
+  .landing-fav {
+    background: transparent; border: 1px solid var(--line); border-radius: 22px;
+    padding: 8px 18px; font-family: inherit; font-size: 13px; color: var(--ink-soft);
+    cursor: pointer; display: inline-flex; align-items: center; gap: 8px; transition: all 0.14s;
+  }
+  .landing-fav:hover { border-color: var(--emo); color: var(--emo); background: var(--emo-wash); }
+  .landing-fav svg { width: 14px; height: 14px; fill: currentColor; stroke: currentColor; stroke-width: 1.5; }
+  .landing-credit { display: none; }
+  body.landing .landing-credit {
+    display: block; position: fixed; bottom: 22px; left: 0; right: 0;
+    text-align: center; font-size: 12px; color: var(--ink-faint); letter-spacing: 0.04em;
+  }
+  body.landing .landing-credit b { color: var(--ink-soft); font-weight: 600; }
   @media (max-width: 560px){
     body.landing .brand-center .title { font-size: 42px; }
     body.landing .head-inner { min-height: 74vh; }
@@ -307,6 +323,9 @@
       <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
       <input id="q" type="text" placeholder="Type what you're looking for…" autocomplete="off" autofocus>
     </div>
+    <div class="landing-actions">
+      <button class="landing-fav" id="landingFav"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9C1 9 2.5 5 6 5c2 0 3.3 1.2 4 2.3C10.7 6.2 12 5 14 5c3.5 0 5 4 3.5 7-2.5 4.4-9.5 9-9.5 9z"/></svg><span id="landingFavCount">Favorites</span></button>
+    </div>
     <div class="stat" id="stat">— shots</div>
 
     <div class="controls">
@@ -319,6 +338,7 @@
       </div>
     </div>
   </div>
+  <div class="landing-credit">Developed by <b>WF Studio</b> · for Luisa Kracht</div>
 </header>
 
 <main>
@@ -385,7 +405,9 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
   }
   function updateFavCount(){
     const n = Object.keys(store.likes).length;
-    document.getElementById('favcount').textContent = n ? ('Favorites ('+n+')') : 'Favorites';
+    const txt = n ? ('Favorites ('+n+')') : 'Favorites';
+    document.getElementById('favcount').textContent = txt;
+    document.getElementById('landingFavCount').textContent = txt;
   }
 
   document.getElementById('stat').innerHTML = '<b>' + BIBLIOTECA.cantidad_planos_total + '</b> shots \u00b7 <b>' + BIBLIOTECA.cantidad_comerciales + '</b> commercials';
@@ -636,6 +658,12 @@ const BIBLIOTECA = {"productora": "MJZ", "director": "Dante Ariola", "cantidad_c
 
   document.getElementById('favtoggle').addEventListener('click', () => {
     soloFavoritos = !soloFavoritos;
+    document.getElementById('favtoggle').classList.toggle('on', soloFavoritos);
+    render();
+  });
+
+  document.getElementById('landingFav').addEventListener('click', () => {
+    soloFavoritos = true;
     document.getElementById('favtoggle').classList.toggle('on', soloFavoritos);
     render();
   });
